@@ -3,17 +3,17 @@ const morgan = require('morgan')
 const cors = require('cors')
 const Person = require('./models/Person.js')
 const app = express()
+const PORT = process.env.PORT || 3001
 
 app.use(express.static('frontend'))
 app.use(cors())
 app.use(express.json())
 
-morgan.token('data', req => {
+morgan.token('req_data', req => {
     return JSON.stringify(req.body)
 })
-app.use(morgan(':method :url :status :response-time ms - :data'))
+app.use(morgan(':method :url :status :response-time ms - :req_data'))
 
-const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
     console.log(`Listening to port ${PORT}`)
 })
@@ -23,27 +23,37 @@ app.get('/info', (req, res) => {
     res.send(msg)
 })
 
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (req, res, next) => {
     Person.find({}).then(persons => res.json(persons))
+        .catch( error => next(error))
 })
 
-app.get('/api/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res, next) => {
     const id = req.params.id
     Person.findById(id)
-        .then(person => res.json(person))
-        .catch(res.status(404).end())
+        .then(person => {
+            if (person) {
+                res.json(person)
+            } else {
+                res.status(404).end()
+            }
+        })
+        .catch( error => {
+            next(error)
+        })
 })
 
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
     const id = req.params.id
     Person.findByIdAndDelete(id)
         .then( res.status(204).end())
-        .catch( res.status(404).end())
+        .catch( error => next(error))
 })
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
 
     const newPerson = Person({...req.body})
+
 
     if (!newPerson.name){
         res.status(400)
@@ -53,11 +63,29 @@ app.post('/api/persons', (req, res) => {
         res.status(400)
             .json({"error":"number is misssing"})
     }
-//    else if (persons.find(p => p.name === newPerson.name)){
-//        res.status(403)
-//            .json({"error":"name already exists"})
-//    }
+    //    else if (persons.find(p => p.name === newPerson.name)){
+    //        res.status(403)
+    //            .json({"error":"name already exists"})
+    //    }
     else {
         newPerson.save().then(result => res.json(newPerson))
     }
 })
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+    }
+
+    next(error)
+}
+
+app.use(errorHandler)
