@@ -1,4 +1,3 @@
-const mongoose = require('mongoose')
 
 console.log(process.argv.length)
 
@@ -7,6 +6,7 @@ if (![3,5].includes(process.argv.length) ) {
     process.exit(1)
 }
 
+const mongoose = require('mongoose')
 const password = process.argv[2]
 
 const url =
