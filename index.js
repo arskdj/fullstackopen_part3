@@ -1,11 +1,13 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
 
 app.use(express.json())
+app.use(morgan('tiny'))
 
 const PORT = 3001
 app.listen(PORT, () => {
-    console.log()
+    console.log(`Listening to port ${PORT}`)
 })
 
 let persons = [
@@ -62,16 +64,17 @@ app.post('/api/persons', (req, res) => {
         res.status(400)
             .json({"error":"name is misssing"})
     }
-    if (!newPerson.number){
+    else if (!newPerson.number){
         res.status(400)
             .json({"error":"number is misssing"})
     }
-    if (persons.find(p => p.name === newPerson.name)){
+    else if (persons.find(p => p.name === newPerson.name)){
         res.status(403)
             .json({"error":"name already exists"})
     }
-
-    newPerson.id = parseInt(Math.random() * 10000000000)
-    persons.push({...newPerson})
-    res.json(newPerson)
+    else {
+        newPerson.id = parseInt(Math.random() * 10000000000)
+        persons.push({...newPerson})
+        res.json(newPerson)
+    }
 })
