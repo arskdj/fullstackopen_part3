@@ -57,6 +57,20 @@ app.delete('/api/persons/:id', (req, res) => {
 
 app.post('/api/persons', (req, res) => {
     let newPerson = req.body
+    console.log(persons)
+    if (!newPerson.name){
+        res.status(400)
+            .json({"error":"name is misssing"})
+    }
+    if (!newPerson.number){
+        res.status(400)
+            .json({"error":"number is misssing"})
+    }
+    if (persons.find(p => p.name === newPerson.name)){
+        res.status(403)
+            .json({"error":"name already exists"})
+    }
+
     newPerson.id = parseInt(Math.random() * 10000000000)
     persons.push({...newPerson})
     res.json(newPerson)
