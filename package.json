@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "build" : "cd ../fullstackopen_course/part2/phonebook && npm run build && cp -r build/ ../../../fullstackopen_part3/frontend",
+        "build" : "pwd && rm -rf frontend && cd ../fullstackopen_course/part2/phonebook && npm run build && rsync -av build/ ../../../fullstackopen_part3/frontend",
         "deploy" : "git add . && git commit -m deploy && git push heroku master",
         "start": "node index.js",
         "dev": "nodemon index.js",
