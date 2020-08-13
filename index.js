@@ -54,3 +54,10 @@ app.delete('/api/persons/:id', (req, res) => {
     persons = persons.filter(p => p.id != id)
     res.status(204).end()
 })
+
+app.post('/api/persons', (req, res) => {
+    let newPerson = req.body
+    newPerson.id = parseInt(Math.random() * 10000000000)
+    persons.push({...newPerson})
+    res.json(newPerson)
+})
