@@ -18,36 +18,33 @@ app.listen(PORT, () => {
     console.log(`Listening to port ${PORT}`)
 })
 
+app.get('/info', (req, res) => {
+    const msg = `<p> phonebook has ${persons.length} people </p> ${Date()}`
+    res.send(msg)
+})
+
 app.get('/api/persons', (req, res) => {
-    Person.find({}).then(persons => {
-        console.log(persons)
-        res.json(persons)
-    })
+    Person.find({}).then(persons => res.json(persons))
 })
 
 app.get('/api/persons/:id', (req, res) => {
     const id = req.params.id
-    const person = persons.find(p => p.id == id)
-    if (person)
-        res.json(person)
-    else
-        res.status(404).end()
-})
-
-app.get('/info', (req, res) => {
-    const msg = `<p> phonebook has ${persons.length} people </p> ${ Date() } `
-    res.send(msg)
+    Person.findById(id)
+        .then(person => res.json(person))
+        .catch(res.status(404).end())
 })
 
 app.delete('/api/persons/:id', (req, res) => {
     const id = req.params.id
-    persons = persons.filter(p => p.id != id)
-    res.status(204).end()
+    Person.findByIdAndDelete(id)
+        .then( res.status(204).end())
+        .catch( res.status(404).end())
 })
 
 app.post('/api/persons', (req, res) => {
-    let newPerson = req.body
-    console.log(persons)
+
+    const newPerson = Person({...req.body})
+
     if (!newPerson.name){
         res.status(400)
             .json({"error":"name is misssing"})
@@ -56,13 +53,11 @@ app.post('/api/persons', (req, res) => {
         res.status(400)
             .json({"error":"number is misssing"})
     }
-    else if (persons.find(p => p.name === newPerson.name)){
-        res.status(403)
-            .json({"error":"name already exists"})
-    }
+//    else if (persons.find(p => p.name === newPerson.name)){
+//        res.status(403)
+//            .json({"error":"name already exists"})
+//    }
     else {
-        newPerson.id = parseInt(Math.random() * 10000000000)
-        persons.push({...newPerson})
-        res.json(newPerson)
+        newPerson.save().then(result => res.json(newPerson))
     }
 })

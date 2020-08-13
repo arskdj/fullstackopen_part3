@@ -28,13 +28,13 @@ const newPerson = Person({
 })
 
 if (process.argv.length === 5){
-newPerson.save().then( result => {
-    console.log('saved', result)
-    mongoose.connection.close()
-})
+    newPerson.save().then( result => {
+        console.log('saved', result)
+        mongoose.connection.close()
+    })
 } else if (process.argv.length === 3){
     Person.find({}).then( result => {
-    console.log(result)
-    mongoose.connection.close()
-})
+        console.log(result)
+        mongoose.connection.close()
+    })
 }
