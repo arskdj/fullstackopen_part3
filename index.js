@@ -1,6 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const mongoose = require('mongoose')
 const app = express()
 
 app.use(express.static('frontend'))
@@ -16,6 +18,19 @@ const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
     console.log(`Listening to port ${PORT}`)
 })
+
+const uri = process.env.DB_URI
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+console.log('connected to DB', uri)
+
+
+const personSchema = new mongoose.Schema({
+    name : String,
+    number : String
+})
+
+const Person = mongoose.model('Person', personSchema)
+
 
 let persons = [
     {
@@ -41,7 +56,11 @@ let persons = [
 ]
 
 app.get('/api/persons', (req, res) => {
-    res.send(persons)
+    Person.find({}).then(persons => {
+        console.log(persons)
+        res.json(persons)
+        mongoose.connection.close()
+    })
 })
 
 app.get('/api/persons/:id', (req, res) => {
