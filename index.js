@@ -18,7 +18,7 @@ app.listen(PORT, () => {
     console.log(`Listening to port ${PORT}`)
 })
 
-app.get('/info', (req, res) => {
+app.get('/info', (req, res, next) => {
     Person.count({})
         .then(count => res.send( `<p> phonebook has ${count} people </p> ${Date()}`))
         .catch( error => next(error))
@@ -67,7 +67,7 @@ app.post('/api/persons/', (req, res, next) => {
     const newPerson = Person({...req.body})
 
     newPerson.save()
-        .then(result => res.json(newPerson))
+        .then(() => res.json(newPerson))
         .catch(error => next(error) )
 })
 
@@ -87,8 +87,6 @@ const errorHandler = (error, request, response, next) => {
     if (error.name === 'ValidationError') {
         return response.status(400).send({ error: error.message })
     }
-
-    return response.status(400).send({ error: error.message })
 
     next(error)
 }

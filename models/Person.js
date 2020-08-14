@@ -9,10 +9,10 @@ console.log('connecting to', uri)
 
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then( result => {
-        console.log('connected to DB')
+        console.log('connected to DB', result)
     })
     .catch( error => {
-        console.log('error connecting to DB')
+        console.log('error connecting to DB', error)
     })
 
 const personSchema = new mongoose.Schema({

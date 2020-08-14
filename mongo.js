@@ -1,6 +1,3 @@
-
-console.log(process.argv.length)
-
 if (![3,5].includes(process.argv.length) ) {
     console.log('example: node mongo.js <password> <name> <number>')
     process.exit(1)
