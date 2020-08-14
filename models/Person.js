@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const uniqueValidator = require('mongoose-unique-validator')
 
 mongoose.set('useFindAndModify', false)
+mongoose.set('useCreateIndex', true)
 
 const uri = process.env.DB_URI
 console.log('connecting to', uri)
