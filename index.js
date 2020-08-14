@@ -68,11 +68,7 @@ app.post('/api/persons/', (req, res, next) => {
 
     newPerson.save()
         .then(result => res.json(newPerson))
-        .catch(error => {
-            console.log('POSTerror', error)
-            next(error)
-        })
-
+        .catch(error => next(error) )
 })
 
 const unknownEndpoint = (request, response) => {
@@ -91,6 +87,8 @@ const errorHandler = (error, request, response, next) => {
     if (error.name === 'ValidationError') {
         return response.status(400).send({ error: error.message })
     }
+
+    return response.status(400).send({ error: error.message })
 
     next(error)
 }
