@@ -50,10 +50,18 @@ app.delete('/api/persons/:id', (req, res, next) => {
         .catch( error => next(error))
 })
 
-app.post('/api/persons', (req, res, next) => {
+app.put('/api/persons/:id', (req, res, next) => {
+    Person.findByIdAndUpdate(req.params.id , newPerson, { new : true })
+        .then(result => res.json(result))
+        .catch(error => {
+            console.log(error)
+            next(error)
+        })
+})
+
+app.post('/api/persons/', (req, res, next) => {
 
     const newPerson = Person({...req.body})
-
 
     if (!newPerson.name){
         res.status(400)
@@ -63,12 +71,9 @@ app.post('/api/persons', (req, res, next) => {
         res.status(400)
             .json({"error":"number is misssing"})
     }
-    //    else if (persons.find(p => p.name === newPerson.name)){
-    //        res.status(403)
-    //            .json({"error":"name already exists"})
-    //    }
     else {
         newPerson.save().then(result => res.json(newPerson))
+            .catch(error => next(error))
     }
 })
 
@@ -78,14 +83,14 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
-const errorHandler = (error, request, response, next) => {
+const errorHandler = (error, request, response) => {
     console.error(error.message)
 
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id' })
     }
 
-    next(error)
+    return response.status(500).send({ error: error.message})
 }
 
 app.use(errorHandler)
