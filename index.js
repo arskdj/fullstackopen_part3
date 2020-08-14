@@ -58,7 +58,6 @@ app.put('/api/persons/:id', (req, res, next) => {
     Person.findByIdAndUpdate(req.params.id , newPerson, { new : true })
         .then(result => res.json(result))
         .catch(error => {
-            console.log(error)
             next(error)
         })
 })
@@ -67,18 +66,13 @@ app.post('/api/persons/', (req, res, next) => {
 
     const newPerson = Person({...req.body})
 
-    if (!newPerson.name){
-        res.status(400)
-            .json({"error":"name is misssing"})
-    }
-    else if (!newPerson.number){
-        res.status(400)
-            .json({"error":"number is misssing"})
-    }
-    else {
-        newPerson.save().then(result => res.json(newPerson))
-            .catch(error => next(error))
-    }
+    newPerson.save()
+        .then(result => res.json(newPerson))
+        .catch(error => {
+            console.log('POSTerror', error)
+            next(error)
+        })
+
 })
 
 const unknownEndpoint = (request, response) => {
@@ -87,14 +81,18 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
-const errorHandler = (error, request, response) => {
-    console.error(error.message)
+const errorHandler = (error, request, response, next) => {
+    console.log(error.message)
 
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id' })
     }
 
-    return response.status(500).send({ error: error.message})
+    if (error.name === 'ValidationError') {
+        return response.status(400).send({ error: error.message })
+    }
+
+    next(error)
 }
 
 app.use(errorHandler)
