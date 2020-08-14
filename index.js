@@ -19,8 +19,9 @@ app.listen(PORT, () => {
 })
 
 app.get('/info', (req, res) => {
-    const msg = `<p> phonebook has ${persons.length} people </p> ${Date()}`
-    res.send(msg)
+    Person.count({})
+        .then(count => res.send( `<p> phonebook has ${count} people </p> ${Date()}`))
+        .catch( error => next(error))
 })
 
 app.get('/api/persons', (req, res, next) => {
@@ -51,6 +52,9 @@ app.delete('/api/persons/:id', (req, res, next) => {
 })
 
 app.put('/api/persons/:id', (req, res, next) => {
+    const newPerson = {...req.body}
+    delete newPerson.id
+
     Person.findByIdAndUpdate(req.params.id , newPerson, { new : true })
         .then(result => res.json(result))
         .catch(error => {
