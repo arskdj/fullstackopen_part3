@@ -53,9 +53,8 @@ app.delete('/api/persons/:id', (req, res, next) => {
 
 app.put('/api/persons/:id', (req, res, next) => {
     const newPerson = {...req.body}
-    delete newPerson.id
 
-    Person.findByIdAndUpdate(req.params.id , newPerson, { new : true, runValidators : true })
+    Person.findByIdAndUpdate(req.params.id , newPerson, { new : true, runValidators : true , context: 'query'})
         .then(result => res.json(result))
         .catch(error => {
             next(error)
