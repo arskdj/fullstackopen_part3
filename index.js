@@ -55,7 +55,7 @@ app.put('/api/persons/:id', (req, res, next) => {
     const newPerson = {...req.body}
     delete newPerson.id
 
-    Person.findByIdAndUpdate(req.params.id , newPerson, { new : true })
+    Person.findByIdAndUpdate(req.params.id , newPerson, { new : true, runValidators : true })
         .then(result => res.json(result))
         .catch(error => {
             next(error)
